@@ -1,0 +1,53 @@
+!!! 5
+html(lang="en")
+  head
+    meta(http-equiv="Content-Type", content="text/html,charset = UTF-8")
+    meta(name="apple-mobile-web-capable", content="yes")
+    meta(name="apple-mobile-web-status-bar-style", content="black-translucent")
+    meta(name="viewport", content="width = device-width, initial-scale = 0.5, user-scalable = no")
+    != SocketStream
+    title SocketRacer
+  body
+    #wrapper
+      #navigationTop
+        img(class='navigationLogo', src='/images/racerlogo.png')
+      #main.views.hidden
+        #canvas
+          #cardebug.hidden
+          #buttons-left
+            span#debug 
+              | Toggle debug
+            br
+            br
+            span#changecol
+              | Change colour
+            br
+            br
+            #control-left.control.left.hidden
+            #control-right.control.right.hidden
+
+          #buttons-right
+            #control-up.control.up.hidden
+            #control-down.control.down.hidden
+            
+          #viewport
+            #tiles
+      input(type='text')#chatentry.hidden
+      #radar
+        span.title radar
+      #navigationBottom
+        p
+          |SocketRacer proof of concept by
+          a(href='https://github.com/alz') Alan Milford
+          |  based on the awesome
+          a(href='https://github.com/socketstream/socketstream') SocketStream
+          |  framework
+        
+      form(onsubmit="return false")#signIn.views.hidden
+        h1 Please enter a name for your car
+        input(type="text", autofocus)
+  
+      #browserNotSupported.hidden
+        h1 Sorry folks
+        p Your browser is not supported :(
+        p Please use either Google Chrome or Apple Safari.

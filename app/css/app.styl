@@ -1,0 +1,219 @@
+// SocketRacer Styles
+
+@import 'helpers'
+@import 'sign-in'
+@import 'cars'
+
+// Main
+
+body, html
+  height 100%
+
+body
+  font normal 1em sans-serif
+  vertical-gradient #eee, #fff
+  text-align center
+
+p
+  margin-bottom 1em
+
+h1
+  font-size 1.5em
+  margin 1.5em
+  color #0057c5
+  text-shadow 1px 1px 2px white
+
+.control
+  width 80px
+  height 80px
+
+.navigationLogo
+  width 200px
+  margin-top 5px
+  margin-left 5px
+  float left
+
+#navigationTop
+  height 50px
+  margin 0
+  padding 0
+  width  100%
+  vertical-gradient #45484d #000000
+  z-index 20
+
+#main
+  height auto
+  width 100%
+  z-index 20
+  
+#navigationBottom
+  height 50px
+  width  100%
+  padding 0
+  margin 0
+  vertical-gradient #45484d #000000
+  position absolute
+  bottom 0px
+  z-index 20
+  font-size 12px
+  color #aaa
+  p
+    vertical-align middle
+    margin-top 15px
+  a
+    text-decoration none
+    color #fff
+    
+#chatentry
+  position absolute
+  min-width 200px
+  bottom 60px
+  left 40%
+  border 10px solid #555
+  round 10px
+  opacity 0.8
+  width 20%
+  height 45px
+  z-index 25
+  font-size 30px
+    
+#radar
+  position absolute
+  width 150px
+  height 150px
+  background-color #aca
+  opacity 0.3
+  bottom 60px 
+  right 15px
+  color #ddd
+  font-size 20px
+  text-align center
+  round 10px
+  
+  .title
+    width 100%
+    font-family courier
+    font-weight bold
+    font-size 20px
+    color #898
+    
+  .car 
+    width 5px
+    height 5px
+    border 0px
+    position absolute
+    background-color #fff
+    round 5px
+    z-index 30
+    
+  .me
+    background-color #555
+    z-index 35
+    
+#canvas
+  border 0 
+  margin 0
+  padding 0
+  background transparent
+  overflow hidden
+  position absolute
+  left 0
+  top 50px
+  bottom 50px
+  
+  #debug
+    background-color #aaa
+    opacity 0.5
+    color #000
+    height 60px
+    width 140px
+    padding 10px
+    border 1px solid #000
+    z-index 100
+    
+  #changecol
+    background-color #aaa
+    opacity 0.5
+    color #000
+    height 60px
+    width 140px
+    padding 10px
+    border 1px solid #000
+    
+  #buttons-left
+    position absolute
+    bottom 0px
+    left 0px
+    z-index 10
+    opacity 0.3
+    
+    div
+      background-image url(/images/buttonsm.png)
+
+    .left
+      rot 90deg
+    .right
+      rot -90deg
+
+  #buttons-right
+    position absolute
+    bottom 0px
+    right 0px
+    z-index 10
+    opacity 0.3
+    
+    div
+      background-image url(/images/buttonsm.png)
+      
+    .up
+      rot 180deg
+    .down
+      rot 0deg
+
+  #viewport
+    position absolute
+    overflow none
+    left 0
+    top 0
+    background transparent
+    margin 0
+    padding 0
+    
+    #tiles
+      position absolute
+      top 0
+      left 0
+      
+      .tile
+        width 512px
+        height 512px
+        padding 0px
+        margin 0px
+        position absolute
+
+#wrapper
+  margin 0 0
+  width 100%
+  height 100%
+  padding 0px
+      
+// Browser not supported error message
+#browserNotSupported
+  position absolute
+  top 0px
+  left 0px
+  right 0px
+  bottom 0px
+  width 100%
+  height 100%
+  z-index 2
+  background white
+  text-align center
+
+  h1
+    font-size 18pt
+    margin 6em 0em 2em
+
+  p
+    font-size 12pt
+    padding 0.5em 0em

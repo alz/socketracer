@@ -220,7 +220,7 @@ loadImages = ->
   sr.viewportx = 0
   sr.viewporty = 0
   tiles = new Image
-  tiles.src = '/images/tiles.png'
+  tiles.src = '/images/asphaltsprite.png'
   sr.tilesprite = $(tiles)
   
   img = new Image

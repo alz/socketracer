@@ -1,0 +1,19 @@
+20110621170943:socketracer.com:root:ssh cd apps/socketracer/ && git pull origin master
+20110621170945:socketracer.com:stderr: Warning: Permanently added 'socketracer.com,178.79.180.221' (RSA) to the list of known hosts.
+20110621170946:socketracer.com:stderr: From git://github.com/alz/socketracer
+20110621170946:socketracer.com:stderr:  * branch            master     -> FETCH_HEAD
+20110621170946:socketracer.com:stdout: Updating 4038f18..0afa9a7
+20110621170946:socketracer.com:stdout: Fast-forward
+20110621170946:socketracer.com:stdout:  app/client/app.coffee |    1 -
+20110621170946:socketracer.com:stdout:  deploy.coffee         |   26 ++++++++++++++++++++++++++
+20110621170946:socketracer.com:stdout:  package.json          |    3 +++
+20110621170946:socketracer.com:stdout:  3 files changed, 29 insertions(+), 1 deletions(-)
+20110621170946:socketracer.com:stdout:  create mode 100644 deploy.coffee
+20110621170946:socketracer.com:exit: 0
+20110621170946:socketracer.com:root:ssh sudo sh /etc/init.d/socketracer restart
+20110621170947:socketracer.com:stdout: Restarting socketracer: 
+20110621170947:socketracer.com:stderr: start-stop-daemon: warning: failed to kill 11996: No such process
+20110621170947:socketracer.com:stdout: 1 pids were not killed
+20110621170947:socketracer.com:stdout: No process in pidfile '/tmp/socketracer.pid' found running; none killed.
+20110621170948:socketracer.com:stdout: socketracer.
+20110621170948:socketracer.com:exit: 0

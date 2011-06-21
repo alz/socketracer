@@ -294,7 +294,6 @@ redraw = ->
   # Draw cars
   $.each(sr.cars, (k, v) ->
     sr.cars[k].draw()
-    sr.collisions.check(sr.mycar, sr.cars[k])
   )
 
   # Draw my car

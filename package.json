@@ -3,5 +3,8 @@
   "description":  "A multi-player real time racing game to demonstrate the SocketStream framework",
   "version":      "0.0.1",
   "author":       "Alan Milford <alan.milford@teamaol.com>",
+  "dependencies": {
+    "control":  ">= 0.1.7"
+  },
   "engines":      { "node": "> 0.4.5" }
 }

@@ -22,5 +22,8 @@
 			]
 		}
 	},
-  "browser_check": {"enabled":true, "strict":true}
+  "browser_check": {
+    "enabled": true,
+    "strict": true
+  }
 }

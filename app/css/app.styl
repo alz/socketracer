@@ -76,43 +76,45 @@ h1
   height 45px
   z-index 25
   font-size 30px
-    
-#radar
-  position absolute
-  width 150px
-  height 150px
-  background-color #aca
-  opacity 0.3
-  bottom 60px 
-  right 15px
-  color #ddd
-  font-size 20px
-  text-align center
-  round 10px
+
+.clear
+  clear right
   
-  .title
-    width 100%
+#controls
+  position absolute
+  top 10px
+  right 10px
+  background-color #aaa
+  round 10px
+  color #000
+  width 140px
+  opacity 0.3
+  z-index 70
+  padding 10px
+
+  #controlsdetails
     font-family courier
-    font-weight bold
-    font-size 20px
-    color #898
+    background-color #aaa
+    color #000
+    width 140px
+    margin-bottom 10px 
+    text-align left
+    font-size 12px
+    round 10px
+
+    strong
+      font-weight bold
     
-  .car 
-    width 5px
-    height 5px
-    border 0px
-    position absolute
-    background-color #fff
-    round 5px
-    z-index 30
-    
-  .me
-    background-color #555
-    z-index 35
-    
+    #controlsbutton 
+      background-color #aaa
+      color #000
+      width 140px
+      round 10px
+      margin-bottom 5px
+      
 #canvas
   border 0 
-  margin 0
+  margin 0 auto
   padding 0
   background transparent
   overflow hidden
@@ -120,26 +122,7 @@ h1
   left 0
   top 50px
   bottom 50px
-  
-  #debug
-    background-color #aaa
-    opacity 0.5
-    color #000
-    height 60px
-    width 140px
-    padding 10px
-    border 1px solid #000
-    z-index 100
-    
-  #changecol
-    background-color #aaa
-    opacity 0.5
-    color #000
-    height 60px
-    width 140px
-    padding 10px
-    border 1px solid #000
-    
+
   #buttons-left
     position absolute
     bottom 0px
@@ -147,9 +130,30 @@ h1
     z-index 10
     opacity 0.3
     
-    div
-      background-image url(/images/buttonsm.png)
+    #debug
+      background-color #aaa
+      color #000
+      width 140px
+      padding 10px
+      /* border 1px solid #000 */
+      round 10px
+      margin-bottom 5px
+    
+    #changecol
+      background-color #aaa
+      color #000
+      width 140px
+      padding 10px
+      margin-bottom 10px 
+      /* border 1px solid #000 */
+      round 10px
 
+    div.control
+      background-image url(/images/buttonsm.png)
+    
+    .hide
+      display none
+      
     .left
       rot 90deg
     .right
@@ -162,13 +166,49 @@ h1
     z-index 10
     opacity 0.3
     
-    div
+    div.control
       background-image url(/images/buttonsm.png)
+      float right
+      margin-left 10px
       
     .up
       rot 180deg
     .down
       rot 0deg
+
+    #radar
+      position relative
+      width 150px
+      height 150px
+      background-color #aca
+      right 5px
+      bottom 10px
+      color #ddd
+      font-size 20px
+      text-align center
+      round 10px
+      display block
+      float left
+
+      .title
+        width 100%
+        font-family courier
+        font-weight bold
+        font-size 20px
+        color #898
+
+      .car 
+        width 5px
+        height 5px
+        border 0px
+        position absolute
+        background-color #fff
+        round 5px
+        z-index 30
+
+      .me
+        background-color #555
+        z-index 35
 
   #viewport
     position absolute

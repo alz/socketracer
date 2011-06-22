@@ -34,20 +34,27 @@ touchEvent = (e, type, val) ->
   broadcastCarData(sr.mycar)
   
 bindEvents = ->
-  $('#changecol').click (e) ->
-    col = sr.mycar.getColour() + 1;
-    if (col > 7)
-      col = 0
-    sr.mycar.setColour(col)
-    e.preventDefault()
+  $('#controls').click (e) ->
+    $('#controlsbutton').toggle()
+    $('#controlsdetails').toggle()
     return false
+  $('#changecol').click (e) ->
+      col = sr.mycar.getColour() + 1;
+      if (col > 7)
+        col = 0
+      sr.mycar.setColour(col)
+      broadcastCarData(sr.mycar, true)
+      e.preventDefault()
+      return false
   $('#debug').click (e) ->
     sr.debugmode = !sr.debugmode
     
     if sr.debugmode
       $('#cardebug').show()
+      $('#debug').html("Hide debug")
     else
       $('#cardebug').hide()
+      $('#debug').html("Show debug")
       
     e.preventDefault()
     return false
@@ -167,12 +174,6 @@ signUserIn = (data) ->
   drawCanvas()
   bindEvents()
   runGame()
-  
-initCars = (cars) ->
-  console.log(cars)
-  return
-  for car in cars
-    newcar = initCar(car)
 
 initCar = (car, local) ->
   t = $('#' + car.id)
@@ -184,6 +185,10 @@ initCar = (car, local) ->
   if sr.mycar and sr.mycar.id is car.id
     return sr.mycar    
   
+  if $('#' + car.id)
+    # Destroy existing element
+    $('#' + car.id).remove()
+  
   elem = document.createElement('div')
   ielem = document.createElement('div')
   car_elem = $(elem).addClass("car")
@@ -192,9 +197,13 @@ initCar = (car, local) ->
   img_elem.html('<p>' + car.name.substring(0,4).toLowerCase() + '</p>')
   car_elem.append(img_elem)
 
+  radid = '_rad-' + car.id
+  if $('#' + radid)
+    $('#' + radid).remove()
+    
   rad = document.createElement('div')
   radcar = $(rad).addClass("car")
-  radcar.attr({'id': '_rad-' + car.id})
+  radcar.attr({'id': radid})
   
   if car.name is sr.user
     radcar.addClass("me")
@@ -220,7 +229,7 @@ loadImages = ->
   sr.viewportx = 0
   sr.viewporty = 0
   tiles = new Image
-  tiles.src = '/images/asphaltsprite.png'
+  tiles.src = '/images/asphaltsprite.jpg'
   sr.tilesprite = $(tiles)
   
   img = new Image
@@ -250,7 +259,6 @@ drawCanvas = ->
   #ctx = canvas.getContext('2d');
   img = new Image
   img.src = '/images/minis.png'
-  img.onload = () -> console.log("loaded sprite")
   sr.carimg = img
   #sr.mycar = new Car(0, sr.user.u, true)
   drawTiles(canvas)
@@ -258,7 +266,7 @@ drawCanvas = ->
     $('#cardebug').show()
   
   if navigator.userAgent.match(/iPhone/i) or navigator.userAgent.match(/iPod/i) or navigator.userAgent.match(/iPad/i)
-    $('#buttons-left').find("div").show()
+    $('#buttons-left').find(".control").css({display: 'inline-block'})
     $('#buttons-right').find("div").show()
     window.scrollTo(0, 1)
   
@@ -362,9 +370,9 @@ displaySignInForm = ->
     sr.user = $('#signIn').find('input[type="text"]').val()
     SS.server.app.signIn $('#signIn').find('input[type="text"]').val(), (response) ->
       $('#signInError').remove()
-      if response is false
+      if response.error is true
         $('#signIn').find('input[type="text"]').val('')
-        $('#signIn').append("<p id='signInError'>Error signing in</p>")
+        $('#signIn').append("<p id='signInError'>" + response.error_msg + "</p>")
       else
         $('#signIn').fadeOut 230
         signUserIn response
@@ -384,7 +392,7 @@ transformOrigin = (x, y) ->
 cssTransform = (string) ->
   return {"-webkit-transform": string, "-moz-transform": string, "-o-transform": string, "-ms-transform": string, "transform": string}
   
-broadcastCarData = (car) ->
+broadcastCarData = (car, force = false) ->
   return false if car is null
   transmit = ['id', 'reverse', 'hbrake', 'brakes', 
               'colour', 'ypos', 'xpos', 'speed', 'st_speed', 
@@ -394,7 +402,7 @@ broadcastCarData = (car) ->
   out = {}
   for key, value of car
     out[key] = value if transmit.include(key)
-  SS.server.app.updateCar(out) # if car.speed != 0
+  SS.server.app.updateCar(out) if car.speed != 0 or force
 
 class Point
   x: null
@@ -618,18 +626,17 @@ class Car
       "TR: #{@tr}<br />" +
       "X: #{@xpos}<br />" +
       "Y: #{@ypos}<br />" +
-      "XD: #{@xd}<br />" +
-      "YD: #{@yd}<br />" +
       "VPX: #{sr.viewportx}<br />" +
       "VPY: #{sr.viewporty}<br />" + 
       "TX: #{tx}<br />" +
       "TY: #{ty}<br />" + 
-      "Tile: #{tile}"
+      "Tile Type: #{tile}"
     )
     
   destroy: () ->
     @element.fadeOut 1000, () =>
       @element.remove()
+      $('#_rad-' + @id).remove()
       delete sr.cars[@name]
       
   draw: (ctx) ->
@@ -670,12 +677,7 @@ SS.events.on 'initMyCar', (car) ->
   if sr.running is false or sr.mycar != null
     return false
   initMyCar(car)
-  
-SS.events.on 'initCars', (cars) ->
-  if sr.running is false
-    return false
-  initCars(cars)
-  
+
 SS.events.on 'updateCar', (car) ->
   if sr.running is false
     return false
@@ -702,6 +704,10 @@ SS.events.on 'updateCar', (car) ->
       sr.cars[car.name].set(k, v)
       true
     )
+  else
+    # Maybe we missed an init message?
+    sr.cars[car.name] = initCar(car, false)
+    true
     
 SS.events.on 'signedOut', (data) ->
   if sr.running is false

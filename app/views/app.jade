@@ -13,28 +13,40 @@ html(lang="en")
         img(class='navigationLogo', src='/images/racerlogo.png')
       #main.views.hidden
         #canvas
+          #controls
+            #controlsdetails.hidden
+              p 
+                strong Controls: 
+              ul
+                li Up - Forward
+                li Down - Brake/Reverse
+                li Left - Turn left
+                li Right - Turn right
+                li Space - Handbrake
+                li Enter - Chat
+              br  
+              | Click to hide
+            #controlsbutton
+              | Show controls
           #cardebug.hidden
           #buttons-left
-            span#debug 
-              | Toggle debug
-            br
-            br
-            span#changecol
+            #debug 
+              | Show debug
+            #changecol
               | Change colour
-            br
-            br
-            #control-left.control.left.hidden
-            #control-right.control.right.hidden
+            #control-left.hidden.control.left
+            #control-right.hidden.control.right
 
           #buttons-right
+            #radar
+              span.title radar
             #control-up.control.up.hidden
+            br
             #control-down.control.down.hidden
             
           #viewport
             #tiles
       input(type='text')#chatentry.hidden
-      #radar
-        span.title radar
       #navigationBottom
         p
           |SocketRacer proof of concept by
@@ -44,7 +56,7 @@ html(lang="en")
           |  framework
         
       form(onsubmit="return false")#signIn.views.hidden
-        h1 Please enter a name for your car
+        h1 Please enter a username
         input(type="text", autofocus)
   
       #browserNotSupported.hidden

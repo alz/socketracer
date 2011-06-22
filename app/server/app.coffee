@@ -41,13 +41,8 @@ exports.actions =
       if udata
         
         # User is online already, deny
-        cb false
+        cb {error: true, error_msg: "Username already in use"}
         
-        @broadcastUserCar JSON.parse(udata), cb
-        @getUsersOnline (data) ->
-          for car in data
-            SS.publish.broadcast 'initCar', car
-          
       else
         # Make new user data
         

@@ -1,17 +1,19 @@
 // Car specific styles
 
 #cardebug
-  font-family courier-new
+  font-family courier
+  font-size 12px
   position absolute
-  left 0px
-  top 0px
   background-color #eee
-  opacity 0.5
+  opacity 0.3
   z-index 50
   text-align left
-  padding 20px
+  padding 10px
   border 1px solid #aaa
   color #000
+  round 10px
+  top 10px
+  left 10px
   
 .car
   width 10px
@@ -26,7 +28,6 @@
   rotate (-90deg)
   
   .chat
-    width 200px
     background-color #555
     round 10px
     z-index 35
@@ -37,21 +38,24 @@
     color #eee
     text-align left
     padding 10px
-    z-index 55
+    z-index 70px
+    max-width 500px
+    overflow hidden
     
     p
       top 0px
-      width 200px
+      max-width 500px
+      min-width 200px
       color #fff
       font-size 20px
       margin auto
-      z-index 35
+      z-index 70
       
     .spike
       position absolute
       bottom -10px
       left 35%
-      z-index 35
+      z-index 80
       
   .img
     width 70px

@@ -1,4 +1,4 @@
 {
   "port": 443,
-  "ssl": {"enabled":true}
+  "https": {"enabled":true}
 }

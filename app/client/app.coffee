@@ -373,6 +373,7 @@ displaySignInForm = ->
       if response.error is true
         $('#signIn').find('input[type="text"]').val('')
         $('#signIn').append("<p id='signInError'>" + response.error_msg + "</p>")
+
       else
         $('#signIn').fadeOut 230
         signUserIn response

@@ -27,6 +27,8 @@ exports.actions =
     cb data
           
   chatMsg: (data, cb) ->
+    if data.msg
+      data.msg = data.msg.replace(/</, '&lt;').replace(/>/, '&gt;')
     SS.publish.broadcast 'chatMsg', data
     cb
     

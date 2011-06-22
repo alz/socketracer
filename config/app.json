@@ -1,4 +1,7 @@
 {
+	"log": {
+		"level": 0
+	},
 	"client": {
 		"log": {
 			"level": 0

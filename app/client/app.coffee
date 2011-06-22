@@ -62,20 +62,21 @@ bindEvents = ->
   document.onorientationchange = (e) ->
     window.scrollTo(0, 1)
     e.preventDefault()
-    
-  if navigator.userAgent.match(/iPhone/i) or navigator.userAgent.match(/iPod/i) or navigator.userAgent.match(/iPad/i)
-      window.ondevicemotion = (e) ->
-        sr.mycar.set("st_speed", e.accelerationIncludingGravity.x)
-        arate = e.accelerationIncludingGravity.y
-        if arate > 0
-          sr.mycar.set("decel", false)
-          sr.mycar.set("accel", true)
-        else if arate < 0
-          sr.mycar.set("accel", false)
-          sr.mycar.set("decel", true)
-          
-        sr.mycar.set("accel_rate", arate)
-        e.preventDefault()
+   
+  # iOS Device Motion detection (disabled currently)  
+  #if navigator.userAgent.match(/iPhone/i) or navigator.userAgent.match(/iPod/i) or navigator.userAgent.match(/iPad/i)
+  #    window.ondevicemotion = (e) ->
+  #      sr.mycar.set("st_speed", e.accelerationIncludingGravity.x)
+  #      arate = e.accelerationIncludingGravity.y
+  #      if arate > 0
+  #        sr.mycar.set("decel", false)
+  #        sr.mycar.set("accel", true)
+  #      else if arate < 0
+  #        sr.mycar.set("accel", false)
+  #        sr.mycar.set("decel", true)
+  #        
+  #      sr.mycar.set("accel_rate", arate)
+  #      e.preventDefault()
 
   document.getElementById('control-left').ontouchstart = (e) -> touchEvent(e, "tl", true)
   document.getElementById('control-left').ontouchend = (e) -> touchEvent(e, "tl", false)
@@ -403,7 +404,7 @@ broadcastCarData = (car, force = false) ->
   out = {}
   for key, value of car
     out[key] = value if transmit.include(key)
-  SS.server.app.updateCar(out) if car.speed != 0 or force
+  SS.server.app.updateCar(out) if car.velX != 0 or car.velY != 0 or force
 
 class Point
   x: null
@@ -733,7 +734,7 @@ SS.events.on 'chatMsg', (data) ->
     car.cbox = chat_elem
   else
     clearTimeout car.ctimeout
-    car.cbox.find('p').text(data.msg)
+    car.cbox.find('p').html(data.msg)
   
   car.ctimeout = after 5000, () =>
     car.cbox.fadeOut 500, () =>

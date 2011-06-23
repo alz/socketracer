@@ -802,8 +802,12 @@ class Car
     @tx = Math.floor(@xpos / SS.config.map.tile_width)
     @ty = Math.floor(@ypos / SS.config.map.tile_height)
     if SS.config.map.tiles[@ty]
-      @tile = SS.config.map.tiles[@ty][@tx][0]
-      @current_tile = SS.config.map.tiles[@ty][@tx][1]
+      if SS.config.map.tiles[@ty][@tx]
+        @tile = SS.config.map.tiles[@ty][@tx][0]
+        @current_tile = SS.config.map.tiles[@ty][@tx][1]
+      else
+        @tile = null
+        @current_tile = 0
     else
       @tile = null
       @current_tile = 0

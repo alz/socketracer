@@ -388,7 +388,7 @@ drawTiles = () ->
     for tile in row
       el = document.createElement('span')
       offset = '0px -' + (tile[0] * tmap.th) + 'px'
-      newdiv = $(el).css({'left': px, 'top': py, 'background-image': 'url(' + SS.config.map.sprite + ')', 'background-position': offset}).addClass('tile')
+      newdiv = $(el).css({'left': px, 'top': py, 'background-image': 'url(' + SS.config.map.sprite + '?' + Number(new Date) + ')', 'background-position': offset}).addClass('tile')
       
       tmap.addTile(rx, ry, tile)
       if rx is 9

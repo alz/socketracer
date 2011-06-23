@@ -21,6 +21,9 @@ window.sr =
   hornsnd: null
   bestlap: 0
   currentlap: 0
+  startx: 0
+  starty: 0
+  collisions: true
   
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 exports.init = ->
@@ -39,6 +42,21 @@ touchEvent = (e, type, val) ->
   broadcastCarData(sr.mycar)
   
 bindEvents = ->
+  $('#reset').click (e) ->
+    if sr.mycar 
+      sr.mycar.xpos = sr.startx
+      sr.mycar.ypos = sr.starty
+      broadcastCarData(sr.mycar, true)
+      return true
+  $('#carcoll').click (e) ->
+    if (sr.collisions)
+      $('#carcoll').html('Enable collisions')
+      sr.collisions = false
+    else
+      $('#carcoll').html('Disable collisions')
+      sr.collisions = true
+    return true
+    
   $('#controls').click (e) ->
     $('#controlsbutton').toggle()
     $('#controlsdetails').toggle()
@@ -388,7 +406,7 @@ drawTiles = () ->
     for tile in row
       el = document.createElement('span')
       offset = '0px -' + (tile[0] * tmap.th) + 'px'
-      newdiv = $(el).css({'left': px, 'top': py, 'background-image': 'url(' + SS.config.map.sprite + ')', 'background-position': offset}).addClass('tile')
+      newdiv = $(el).css({'left': px, 'top': py, 'background-image': 'url(' + SS.config.map.sprite + '?' + Number(new Date) + ')', 'background-position': offset}).addClass('tile')
       
       tmap.addTile(rx, ry, tile)
       if rx is 9
@@ -436,13 +454,15 @@ checkMyCollisions = ->
   tx = sr.mycar.tx
   ty = sr.mycar.ty
   
-  if sr.cartiles[tx]
-    if sr.cartiles[tx][ty]
-      for car in sr.cartiles[tx][ty]
-        sr.mycar.checkCarCollision(sr.cars[car])
-        
   sr.mycar.checkTileCollision()
   
+  if sr.collisions
+    if sr.cartiles[tx]
+      if sr.cartiles[tx][ty]
+        for car in sr.cartiles[tx][ty]
+          sr.mycar.checkCarCollision(sr.cars[car])
+        
+ 
 displaySignInForm = ->
   $('#signIn').show().submit => 
     sr.user = $('#signIn').find('input[type="text"]').val()
@@ -782,8 +802,12 @@ class Car
     @tx = Math.floor(@xpos / SS.config.map.tile_width)
     @ty = Math.floor(@ypos / SS.config.map.tile_height)
     if SS.config.map.tiles[@ty]
-      @tile = SS.config.map.tiles[@ty][@tx][0]
-      @current_tile = SS.config.map.tiles[@ty][@tx][1]
+      if SS.config.map.tiles[@ty][@tx]
+        @tile = SS.config.map.tiles[@ty][@tx][0]
+        @current_tile = SS.config.map.tiles[@ty][@tx][1]
+      else
+        @tile = null
+        @current_tile = 0
     else
       @tile = null
       @current_tile = 0
@@ -800,22 +824,26 @@ class Car
     
     if @name is sr.user and @current_tile is 2 and @completed_tiles is 2 and sr.currentlap is 0
       sr.currentlap = new Date().getTime();
-    
+      
     if sr.user == @name  
-      if @current_tile >= @completed_tiles
-        @completed_tiles = @current_tile
+      if @current_tile >= @completed_tiles and @current_tile != @last_tile
+        @completed_tiles++
+        @last_tile = @current_tile
         $('#wrongway').hide()
       else
-        if @current_tile != 1
+        if @current_tile < @last_tile and @last_tile != SS.config.map.tile_count
           $('#wrongway').show()
       
-    if @current_tile is 1 and @completed_tiles is SS.config.map.tile_count
+    if @current_tile is 1 and @completed_tiles >= SS.config.map.tile_count
       @completed_tiles = 1
       @last_tile = 1
       laptime = new Date().getTime() - sr.currentlap
       if @name is sr.user and (sr.bestlap > laptime or sr.bestlap is 0) and sr.currentlap != 0
         sr.bestlap = laptime
       sr.currentlap = 0
+      
+    if @current_tile is 1
+      @completed_tiles = 1
       
   checkCarCollision: (foreign) ->
     fx = foreign.xpos
@@ -964,6 +992,8 @@ SS.events.on 'initCar', (car) ->
   if sr.running is false or car is null
     return false
   if car.name is sr.user
+    sr.startx = car.xpos
+    sr.starty = car.ypos
     initMyCar(car)
   else
     sr.cars[car.name] = initCar(car, false)

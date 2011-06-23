@@ -4,7 +4,7 @@ html(lang="en")
     meta(http-equiv="Content-Type", content="text/html,charset = UTF-8")
     meta(name="apple-mobile-web-capable", content="yes")
     meta(name="apple-mobile-web-status-bar-style", content="black-translucent")
-    meta(name="viewport", content="width = device-width, initial-scale = 0.5, user-scalable = no")
+    meta(name="viewport", content="width = device-width, initial-scale = 1.0, user-scalable = no")
     != SocketStream
     title SocketRacer
   body
@@ -36,6 +36,10 @@ html(lang="en")
           #wrongway.hidden
             | Wrong way!
           #buttons-left
+            #reset
+              | Help! I'm Stuck!
+            #carcoll
+              | Disable collisions
             #debug 
               | Show debug
             #changecol
@@ -55,12 +59,13 @@ html(lang="en")
       input(type='text')#chatentry.hidden
       #navigationBottom
         p
-          a(href='https://github.com/alz/socketracer') SocketRacer
+          a(href='https://github.com/alz/socketracer', target='_blank') SocketRacer
           |  proof of concept by
-          a(href='https://github.com/alz') Alan Milford
+          a(href='https://about.me/alanmilford', target='_blank') Alan Milford 
           |  based on the awesome
-          a(href='https://github.com/socketstream/socketstream') SocketStream
-          |  framework
+          a(href='https://github.com/socketstream/socketstream', target='_blank') SocketStream
+          |  framework.
+          a(href='https://github.com/alz/socketracer', target='_blank') Get the code.
         
       form(onsubmit="return false")#signIn.views.hidden
         h1 Please enter a username

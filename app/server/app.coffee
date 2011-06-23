@@ -52,7 +52,7 @@ exports.actions =
         # Find a random road tile and
         car = {
             "colour": randomRange(0, 7), 
-            "xpos": randomRange(2660, 3000),
+            "xpos": randomRange(1000, 3000),
             "ypos": randomRange(4700, 5010),
             "rot": randomRange(0, 359),
             "speed": randomRange(0, 20),

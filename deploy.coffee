@@ -2,9 +2,14 @@ control = require 'control'
 task    = control.task
 perform = control.perform
 
-task 'staging', 'config got my server', ->
+task 'socketracer.com', 'config got my server', ->
   config = user: 'root'
   addresses = ['socketracer.com']
+  return control.hosts(config, addresses)
+
+task 'socketracer.co', 'config got my server', ->
+  config = user: 'root'
+  addresses = ['socketracer.co']
   return control.hosts(config, addresses)
   
 task 'deploy', 'deploy the latest version of the app', (host) ->
@@ -12,7 +17,7 @@ task 'deploy', 'deploy the latest version of the app', (host) ->
     perform 'restart', host
   
 task 'update_dependencies', 'upgrade socketstream', (host) ->
-  host.ssh 'cd socketstream/ && git pull origin master && sudo npm link', ->
+  host.ssh 'cd downloads/socketstream/ && git pull origin master && sudo npm link', ->
 
 task 'restart', 'restart the application', (host) ->
   host.ssh 'sudo sh /etc/init.d/socketracer restart'  

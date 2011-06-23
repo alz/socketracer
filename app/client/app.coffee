@@ -630,8 +630,8 @@ class Car
   colliding_car: false
   colliding_tile: false
   completed_tiles: 0
-  last_tile = 1
-  current_tile = 1
+  last_tile: 1
+  current_tile: 1
   
   constructor: (colour, name, local, element, img) ->
     @setColour(colour)
@@ -804,7 +804,13 @@ class Car
     if SS.config.map.tiles[@ty]
       if SS.config.map.tiles[@ty][@tx]
         @tile = SS.config.map.tiles[@ty][@tx][0]
-        @current_tile = SS.config.map.tiles[@ty][@tx][1]
+        newtile = SS.config.map.tiles[@ty][@tx][1]
+        if newtile > @current_tile
+          $('#wrongway').hide()
+        else if newtile < @current_tile and newtile != 1
+          $('#wrongway').show()
+          
+        @current_tile = newtile
       else
         @tile = null
         @current_tile = 0
@@ -826,14 +832,12 @@ class Car
       sr.currentlap = new Date().getTime();
       
     if sr.user == @name  
-      if @current_tile >= @completed_tiles and @current_tile != @last_tile
+      if @current_tile > @completed_tiles and @last_tile < @current_tile
         @completed_tiles++
         @last_tile = @current_tile
-        $('#wrongway').hide()
-      else
-        if @current_tile < @last_tile and @last_tile != SS.config.map.tile_count
-          $('#wrongway').show()
-      
+      if @current_tile is 1 and @last_tile is SS.config.map.tile_count
+        @last_tile = @current_tile
+        
     if @current_tile is 1 and @completed_tiles >= SS.config.map.tile_count
       @completed_tiles = 1
       @last_tile = 1
@@ -951,7 +955,8 @@ class Car
       "TY: #{@ty}<br />" + 
       "Tile Type: #{@tile}<br />" + 
       "Current: #{@current_tile}<br />" +
-      "Completed: #{@completed_tiles}<br />" + 
+      "Completed: #{@completed_tiles}<br />" +
+      "Last: #{@last_tile}<br />"+ 
       "Lap time: #{laptime}<br />" + 
       "Best lap: #{sr.bestlap}"
     )

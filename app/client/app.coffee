@@ -824,22 +824,26 @@ class Car
     
     if @name is sr.user and @current_tile is 2 and @completed_tiles is 2 and sr.currentlap is 0
       sr.currentlap = new Date().getTime();
-    
+      
     if sr.user == @name  
-      if @current_tile >= @completed_tiles
-        @completed_tiles = @current_tile
+      if @current_tile >= @completed_tiles and @current_tile != @last_tile
+        @completed_tiles++
+        @last_tile = @current_tile
         $('#wrongway').hide()
       else
-        if @current_tile != 1
+        if @current_tile < @last_tile and @last_tile != 1
           $('#wrongway').show()
       
-    if @current_tile is 1 and @completed_tiles is SS.config.map.tile_count
+    if @current_tile is 1 and @completed_tiles >= SS.config.map.tile_count
       @completed_tiles = 1
       @last_tile = 1
       laptime = new Date().getTime() - sr.currentlap
       if @name is sr.user and (sr.bestlap > laptime or sr.bestlap is 0) and sr.currentlap != 0
         sr.bestlap = laptime
       sr.currentlap = 0
+      
+    if @current_tile is 1
+      @completed_tiles = 1
       
   checkCarCollision: (foreign) ->
     fx = foreign.xpos

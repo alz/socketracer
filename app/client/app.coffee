@@ -21,6 +21,9 @@ window.sr =
   hornsnd: null
   bestlap: 0
   currentlap: 0
+  startx: 0
+  starty: 0
+  collisions: true
   
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 exports.init = ->
@@ -39,6 +42,21 @@ touchEvent = (e, type, val) ->
   broadcastCarData(sr.mycar)
   
 bindEvents = ->
+  $('#reset').click (e) ->
+    if sr.mycar 
+      sr.mycar.xpos = sr.startx
+      sr.mycar.ypos = sr.starty
+      broadcastCarData(sr.mycar, true)
+      return true
+  $('#carcoll').click (e) ->
+    if (sr.collisions)
+      $('#carcoll').html('Enable collisions')
+      sr.collisions = false
+    else
+      $('#carcoll').html('Disable collisions')
+      sr.collisions = true
+    return true
+    
   $('#controls').click (e) ->
     $('#controlsbutton').toggle()
     $('#controlsdetails').toggle()
@@ -436,13 +454,15 @@ checkMyCollisions = ->
   tx = sr.mycar.tx
   ty = sr.mycar.ty
   
-  if sr.cartiles[tx]
-    if sr.cartiles[tx][ty]
-      for car in sr.cartiles[tx][ty]
-        sr.mycar.checkCarCollision(sr.cars[car])
-        
   sr.mycar.checkTileCollision()
   
+  if sr.collisions
+    if sr.cartiles[tx]
+      if sr.cartiles[tx][ty]
+        for car in sr.cartiles[tx][ty]
+          sr.mycar.checkCarCollision(sr.cars[car])
+        
+ 
 displaySignInForm = ->
   $('#signIn').show().submit => 
     sr.user = $('#signIn').find('input[type="text"]').val()
@@ -964,6 +984,8 @@ SS.events.on 'initCar', (car) ->
   if sr.running is false or car is null
     return false
   if car.name is sr.user
+    sr.startx = car.xpos
+    sr.starty = car.ypos
     initMyCar(car)
   else
     sr.cars[car.name] = initCar(car, false)

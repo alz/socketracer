@@ -831,7 +831,7 @@ class Car
         @last_tile = @current_tile
         $('#wrongway').hide()
       else
-        if @current_tile < @last_tile and @last_tile != 1
+        if @current_tile < @last_tile and @last_tile != SS.config.map.tile_count
           $('#wrongway').show()
       
     if @current_tile is 1 and @completed_tiles >= SS.config.map.tile_count

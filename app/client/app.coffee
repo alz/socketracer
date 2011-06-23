@@ -16,6 +16,11 @@ window.sr =
   chatmode: false
   msgmax: 100000
   mrecv : 0
+  cartiles: {}
+  hbsnd: null
+  hornsnd: null
+  bestlap: 0
+  currentlap: 0
   
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 exports.init = ->
@@ -121,8 +126,19 @@ bindEvents = ->
       opt = "tl"
     else if e.keyCode is 39 # Right
       opt = "tr"
+    else if e.keyCode is 72 # h
+      hornsnd = $('audio#horn')
+      if hornsnd[0] and sr.hornsnd is null
+        hornsnd.currentTime = 0
+        hornsnd[0].play()
+        sr.hornsnd = hornsnd
     else if e.keyCode is 32 # Space
       opt = "hbrake"
+      hbsnd = $('audio#hbaudio')
+      if hbsnd[0] and sr.hbsnd is null
+        hbsnd.currentTime = 0
+        hbsnd[0].play()
+        sr.hbsnd = hbsnd
     else
       return true
 
@@ -151,8 +167,15 @@ bindEvents = ->
       opt = "tl"
     else if e.keyCode is 39 # Rght
       opt = "tr"
+    else if e.keyCode is 72 # h
+      if sr.hornsnd
+        sr.hornsnd[0].pause()
+        sr.hornsnd = null
     else if e.keyCode is 32 # Space
       opt = "hbrake"
+      if sr.hbsnd
+        sr.hbsnd[0].pause()
+        sr.hbsnd = null
     else
       return false
       
@@ -230,7 +253,7 @@ loadImages = ->
   sr.viewportx = 0
   sr.viewporty = 0
   tiles = new Image
-  tiles.src = '/images/asphaltsprite.jpg'
+  tiles.src = SS.config.map.sprite
   sr.tilesprite = $(tiles)
   
   img = new Image
@@ -276,6 +299,11 @@ drawCanvas = ->
 redraw = ->
   canvas = sr.canvas
 
+  sr.cartiles = {}
+  if sr.mycar is null
+    # Can't do anything here
+    return true
+    
   # Move viewport?
   cx = sr.mycar.xpos
   cy = sr.mycar.ypos
@@ -307,34 +335,74 @@ redraw = ->
 
   # Draw my car
   sr.mycar.draw()
-
+  checkMyCollisions()
+  
   if sr.debugmode
     sr.mycar.updateDebug()
 
+  if sr.currentlap != 0
+    
+    time = new Date().getTime()
+    diff = Number(time - sr.currentlap)
+    mins = Math.floor((diff / 1000) % 3600 / 60)
+    secs = Math.floor(diff / 1000 % 60)
+    ms = Math.round((diff % 1000) / 10)
+    if mins < 10
+      mins = "0" + mins
+    if secs < 10
+      secs = "0" + secs
+    if ms < 10
+      ms = "0" + ms
+    current = mins + ":" + secs + ":" + ms
+  else
+    current = "00:00:00"
+    
+  if sr.bestlap !=0 
+    mins = Math.floor((sr.bestlap / 1000) % 3600 / 60)
+    secs = Math.floor(sr.bestlap / 1000 % 60)
+    ms = Math.round((sr.bestlap % 1000) / 10)
+    if mins < 10
+      mins = "0" + mins
+    if secs < 10
+      secs = "0" + secs
+    if ms < 10
+      ms = "0" + ms
+    best = mins + ":" + secs + ":" + ms
+  else
+    best = "00:00:00"
+    
+  $('#clap').html('Current: ' + current)
+  $('#blap').html('Best lap: ' + best)
+  
 drawTiles = () ->
-  tw = SS.config.map.tile_width
-  th = SS.config.map.tile_height
+  tmap = new TileMap
+  
+  tmap.tw = SS.config.map.tile_width
+  tmap.th = SS.config.map.tile_height
   
   py = 0
+  ry = 0
   for row in SS.config.map.tiles
     px = 0
+    rx = 0
     for tile in row
-      rx = 1
       el = document.createElement('span')
-      offset = '0px -' + (tile * th) + 'px'
-      newdiv = $(el).css({'left': px, 'top': py, 'background-position': offset, 'background-image': 'url(' + SS.config.map.sprite + ')'}).addClass('tile')
+      offset = '0px -' + (tile[0] * tmap.th) + 'px'
+      newdiv = $(el).css({'left': px, 'top': py, 'background-image': 'url(' + SS.config.map.sprite + ')', 'background-position': offset}).addClass('tile')
       
-      if rx is 10
+      tmap.addTile(rx, ry, tile)
+      if rx is 9
         newdiv.addClass('tileend')
         
       rx++
-      
       sr.tiles.append(newdiv)
+      px += tmap.tw
       
-      px += tw
-      
-    py += th
+    py += tmap.th
+    ry++
     
+  sr.tilemap = tmap
+  
 drawTilesOld = () ->
   tw = 512
   th = 512
@@ -348,11 +416,9 @@ drawTilesOld = () ->
   for ry in [0..10]
     for rx in [0..10]
       if col
-        #ctx.fillStyle = col1
         fcol = col1
         col = false
       else
-        #ctx.fillStyle = col2
         fcol = col2
         col = true
       px = rx*tw
@@ -365,7 +431,18 @@ drawTilesOld = () ->
         newdiv.addClass('tileend')
         
       sr.tiles.append(newdiv)
-
+      
+checkMyCollisions = ->
+  tx = sr.mycar.tx
+  ty = sr.mycar.ty
+  
+  if sr.cartiles[tx]
+    if sr.cartiles[tx][ty]
+      for car in sr.cartiles[tx][ty]
+        sr.mycar.checkCarCollision(sr.cars[car])
+        
+  sr.mycar.checkTileCollision()
+  
 displaySignInForm = ->
   $('#signIn').show().submit => 
     sr.user = $('#signIn').find('input[type="text"]').val()
@@ -406,6 +483,80 @@ broadcastCarData = (car, force = false) ->
     out[key] = value if transmit.include(key)
   SS.server.app.updateCar(out) if car.velX != 0 or car.velY != 0 or force
 
+class TileMap
+  tw: 0
+  th: 0
+  # Tile types:
+  # Top, Right, Bottom, Left
+  # True indicates wall position
+  "0": [true, true, true, true]
+  "1": [true, true, true, true]
+  "2": [true, false, false, true]
+  "3": [true, true, false, false]
+  "4": [false, true, false, true]
+  "5": [true, false, true, false]
+  "6": [false, true, true, false]
+  "7": [false, false, true, true]
+  "8": [true, false, true, false]
+  "9": [false, true, false, true]
+  "10": [true, true, false, false]
+  "11": [true, false, false, true]
+  "12": [false, false, true, true]
+  "13": [false, true, true, false]
+  
+  map: {}
+  
+  addTile: (x, y, tile) ->
+    if !@map[x]
+      @map[x] = {}
+    
+    @map[x][y] = tile 
+
+  getTile: (x, y) ->
+    if !@map[x]
+      return null
+    if !@map[x][y]
+      return null
+    return @map[x][y]
+  
+  getTileLimits: (x, y) ->
+    # Calculate pixel limits for tile
+    tile = @getTile(x, y)
+    if tile is null
+      return null
+    
+    tlimit = @[tile[0]]
+    
+    minx = x * @tw
+    maxx = minx + @tw
+    
+    miny = y * @th
+    maxy = miny + @th
+    
+    output = []
+    
+    if tlimit[0]
+      output[0] = miny
+    else
+      output[0] = null
+    
+    if tlimit[1]
+      output[1] = maxx
+    else
+      output[1] = null
+      
+    if tlimit[2]
+      output[2] = maxy
+    else
+      output[2] = null
+    
+    if tlimit[3]
+      output[3] = minx
+    else
+      output[3] = null
+    
+    return output
+    
 class Point
   x: null
   y: null
@@ -444,6 +595,10 @@ class Car
   speedDecay: 0.9
   turnSpeed: 3
   
+  tx: 0
+  ty: 0
+  tile: 0
+  
   tr: false
   tl: false
   name: ''
@@ -451,6 +606,12 @@ class Car
   id: null
   cbox: null
   ctimeout: null
+  
+  colliding_car: false
+  colliding_tile: false
+  completed_tiles: 0
+  last_tile = 1
+  current_tile = 1
   
   constructor: (colour, name, local, element, img) ->
     @setColour(colour)
@@ -564,16 +725,25 @@ class Car
     @st_speed = Math.round(@st_speed * 100) / 100
     @xpos += @velX
     @ypos += @velY
-    
-    @velX *= @drag
-    @velY *= @drag
-    
-    @xpos = Math.round(@xpos * 100) / 100
-    @ypos = Math.round(@ypos * 100) / 100
-    
     @angle += @velAng
     
-    @velAng *= @dragAng
+    if @hbrake
+      @velX *= 0.8
+      @velY *= 0.8
+      @velAng *= 0.6
+    else
+      if @tile >= 10 and @tile <= 13
+        # Special water tiles
+        @velX *= 0.75
+        @velY *= 0.75
+        @velAng *= 0.7
+      else
+        @velX *= @drag
+        @velY *= @drag
+        @velAng *= @dragAng
+      
+    @xpos = Math.round(@xpos * 100) / 100
+    @ypos = Math.round(@ypos * 100) / 100
       
     if @velX > -0.1 and @velX < 0.1
       @velX = 0
@@ -587,7 +757,7 @@ class Car
       
     # Perform turn
     if @hbrake is true
-      @velAng += @st_speed * 1.5 * (@speed/@maxspeed)
+      @velAng += @st_speed * 2 * (@speed/@maxspeed)
     else
       @velAng += @st_speed * (@speed/@maxspeed)
     
@@ -608,13 +778,132 @@ class Car
     if @ypos > sr.viewporth
       @ypos = sr.viewporth
       
-  updateDebug: () ->
-
     # Calculate which tile the car is on
-    tx = Math.floor(@xpos / SS.config.map.tile_width)
-    ty = Math.floor(@ypos / SS.config.map.tile_height)
-    tile = SS.config.map.tiles[ty][tx]
+    @tx = Math.floor(@xpos / SS.config.map.tile_width)
+    @ty = Math.floor(@ypos / SS.config.map.tile_height)
+    if SS.config.map.tiles[@ty]
+      @tile = SS.config.map.tiles[@ty][@tx][0]
+      @current_tile = SS.config.map.tiles[@ty][@tx][1]
+    else
+      @tile = null
+      @current_tile = 0
     
+    # Only add remote cars to cartile map
+    if @local is false
+      if !sr.cartiles[@tx]
+        sr.cartiles[@tx] = {}
+        
+      if sr.cartiles[@tx][@ty]
+        sr.cartiles[@tx][@ty].push(@name)
+      else
+        sr.cartiles[@tx][@ty] = [@name]
+    
+    if @name is sr.user and @current_tile is 2 and @completed_tiles is 2 and sr.currentlap is 0
+      sr.currentlap = new Date().getTime();
+    
+    if sr.user == @name  
+      if @current_tile >= @completed_tiles
+        @completed_tiles = @current_tile
+        $('#wrongway').hide()
+      else
+        if @current_tile != 1
+          $('#wrongway').show()
+      
+    if @current_tile is 1 and @completed_tiles is SS.config.map.tile_count
+      @completed_tiles = 1
+      @last_tile = 1
+      laptime = new Date().getTime() - sr.currentlap
+      if @name is sr.user and (sr.bestlap > laptime or sr.bestlap is 0) and sr.currentlap != 0
+        sr.bestlap = laptime
+      sr.currentlap = 0
+      
+  checkCarCollision: (foreign) ->
+    fx = foreign.xpos
+    fy = foreign.ypos
+    
+    r = @width * 1.5
+    cx = @xpos
+    cy = @ypos
+    
+    if @checkCollidePoint(fx, fy, cx, cy, r) and @colliding_car is false
+      @velX = (@velX + -foreign.velX) * -1
+      @velY = (@velY + -foreign.velY) * -1
+      @speed *= -0.5
+      @colliding_car = true
+    else
+      @colliding_car = false
+      
+  checkTileCollision: () ->
+    
+    tile = sr.tilemap.getTileLimits(@tx, @ty)
+    if tile is null
+      return true
+    cx = @xpos
+    cy = @ypos
+    r = @width
+    
+    collision = false
+    
+    # Top
+    if tile[0] != null and @colliding_tile is false
+      fx = @xpos
+      fy = tile[0]
+      
+      if @checkCollidePoint(fx, fy, cx, cy, r)
+        collision = true
+        @velY *= -1
+       
+        
+    # Right
+    if tile[1] != null and @colliding_tile is false
+      fx = tile[1]
+      fy = @ypos
+      
+      if @checkCollidePoint(fx, fy, cx, cy, r)
+        collision = true
+        @velX *= -1
+        
+    # Bottom
+    if tile[2] != null and @colliding_tile is false
+      fx = @xpos
+      fy = tile[2]
+      
+      if @checkCollidePoint(fx, fy, cx, cy, r)
+        collision = true
+        @velY *= -1
+     
+    # Left
+    if tile[3] != null and @colliding_tile is false
+      fx = tile[3]
+      fy = @ypos
+
+      if @checkCollidePoint(fx, fy, cx, cy, r)
+        collision = true
+        @velX *= -1
+    
+    if collision
+      @colliding_tile = true
+    else
+      @colliding_tile = false
+ 
+  tileCollision: () ->
+      @velX *= -0.5
+      @velY *= -0.5
+      @speed *= -0.5
+    
+  checkCollidePoint: (fx, fy, cx, cy, r) ->
+    d = (fx - cx) * (fx - cx) + (fy - cy) * (fy - cy)
+    
+    if d <= (r * r)
+      return true
+    
+    return false
+  updateDebug: () ->
+    if sr.currentlap != 0
+      laptime = new Date().getTime()-sr.currentlap
+    else
+      laptime = 0
+      
     $('#cardebug').html(
       "Angle: #{@angle}<br />" +
       "Speed: #{@speed}<br />" +
@@ -630,9 +919,13 @@ class Car
       "Y: #{@ypos}<br />" +
       "VPX: #{sr.viewportx}<br />" +
       "VPY: #{sr.viewporty}<br />" + 
-      "TX: #{tx}<br />" +
-      "TY: #{ty}<br />" + 
-      "Tile Type: #{tile}"
+      "TX: #{@tx}<br />" +
+      "TY: #{@ty}<br />" + 
+      "Tile Type: #{@tile}<br />" + 
+      "Current: #{@current_tile}<br />" +
+      "Completed: #{@completed_tiles}<br />" + 
+      "Lap time: #{laptime}<br />" + 
+      "Best lap: #{sr.bestlap}"
     )
     
   destroy: () ->
@@ -674,6 +967,9 @@ SS.events.on 'initCar', (car) ->
     initMyCar(car)
   else
     sr.cars[car.name] = initCar(car, false)
+    
+  # Force an update so the newcomer gets it
+  broadcastCarData(sr.mycar, true)
 
 SS.events.on 'initMyCar', (car) ->
   if sr.running is false or sr.mycar != null

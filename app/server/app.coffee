@@ -52,8 +52,8 @@ exports.actions =
         # Find a random road tile and
         car = {
             "colour": randomRange(0, 7), 
-            "xpos": randomRange(200, 500),
-            "ypos": randomRange(200, 500),
+            "xpos": randomRange(2660, 3000),
+            "ypos": randomRange(4700, 5010),
             "rot": randomRange(0, 359),
             "speed": randomRange(0, 20),
             "name": username,
@@ -61,6 +61,8 @@ exports.actions =
         }
     
         R.set "user:#{username}", JSON.stringify(car), (err, data) =>
+          # Expire user after 10 minutes of inactivity
+          R.expire "user:#{username}", 300
           if data
             @broadcastUserCar car, cb
             @getUsersOnline (cdata) =>
@@ -69,7 +71,9 @@ exports.actions =
   
   updateCar: (car, cb) ->
     # Update car in redis
-    R.set "user:#{car.name}", JSON.stringify(car), (err, data) ->
+    R.set "user:#{car.name}", JSON.stringify(car), (err, data) =>
+      # Expire user after 10 minutes of inactivity
+      R.expire "user:#{car.name}", 600
     car.msgid = msgsend++
     if msgsend >= msgmax
       msgsend = 0

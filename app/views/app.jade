@@ -13,6 +13,9 @@ html(lang="en")
         img(class='navigationLogo', src='/images/racerlogo.png')
       #main.views.hidden
         #canvas
+          #laptimer
+            #clap
+            #blap
           #controls
             #controlsdetails.hidden
               p 
@@ -24,11 +27,14 @@ html(lang="en")
                 li Right - Turn right
                 li Space - Handbrake
                 li Enter - Chat
+                li H - Horn
               br  
               | Click to hide
             #controlsbutton
               | Show controls
           #cardebug.hidden
+          #wrongway.hidden
+            | Wrong way!
           #buttons-left
             #debug 
               | Show debug
@@ -64,3 +70,13 @@ html(lang="en")
         h1 Sorry folks
         p Your browser is not supported :(
         p Please use either Google Chrome or Apple Safari.
+
+      
+    audio#hbaudio.hidden
+      img
+      source(src='/sounds/handbrake.mp3')
+    audio#horn.hidden
+      source(src='/sounds/horn.mp3')
+    audio(loop)#engine
+
+    

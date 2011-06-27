@@ -509,8 +509,8 @@ class TileMap
   # Tile types:
   # Top, Right, Bottom, Left
   # True indicates wall position
-  "0": [true, true, true, true]
-  "1": [true, true, true, true]
+  "0": [false, false, false, false]
+  "1": [false, false, false, false]
   "2": [true, false, false, true]
   "3": [true, true, false, false]
   "4": [false, true, false, true]
@@ -805,9 +805,9 @@ class Car
       if SS.config.map.tiles[@ty][@tx]
         @tile = SS.config.map.tiles[@ty][@tx][0]
         newtile = SS.config.map.tiles[@ty][@tx][1]
-        if newtile > @current_tile
+        if sr.user is @name and newtile > @current_tile
           $('#wrongway').hide()
-        else if newtile < @current_tile and newtile != 1
+        else if sr.user is @name and newtile < @current_tile and newtile != 1
           $('#wrongway').show()
           
         @current_tile = newtile

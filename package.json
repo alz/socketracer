@@ -4,7 +4,7 @@
   "version":      "0.0.1",
   "author":       "Alan Milford <alan.milford@teamaol.com>",
   "dependencies": {
-    "control":  ">= 0.1.7"
+    "control":  ">= 0.1.7",
     "socketstream":  ">= 0.2.2"
   },
   "engines":      { "node": "> 0.4.5" }

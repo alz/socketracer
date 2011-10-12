@@ -1,13 +1,23 @@
-exports.config = 
+exports.config =
+
+  # HTTP server (becomes secondary server when HTTPS is enabled)
   http:
-    port:         80
+    port:         3001
     hostname:     "0.0.0.0"
   
+  # HTTPS server (becomes primary server if enabled)
   https:
-    enabled:      true
+    enabled:      false
     port:         443
-    domain:       "www.socketracer.com"
+    domain:       "www.socketstream.org"
 
+  # HTTP(S) request-based API
+  api:
+    enabled:      true
+    prefix:       'api'
+    https_only:   false
+
+  # Show customizable 'Incompatible Browser' page if browser does not support websockets
   browser_check:
-    enabled:            true
-    strict:             true
+    enabled:      false
+    strict:       true

@@ -5,7 +5,7 @@
   "author":       "Alan Milford <alan.milford@teamaol.com>",
   "dependencies": {
     "control":  ">= 0.1.7",
-    "socketstream":  ">= 0.2.2"
+    "socketstream":  ">= 0.2.5"
   },
   "engines":      { "node": "> 0.4.5" }
 }
